@@ -1,4 +1,3 @@
-// src/gun/HomeDetail2.tsx
 import { motion } from "framer-motion";
 import back3 from "../assets/back3.png";
 import person from "../assets/person.png";
@@ -15,10 +14,7 @@ const fadeUp = {
 export function HomeDetail2() {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white font-roboto">
-      {/* back3: fades IN on entry (crossfading with HomeDetail's back2
-          as it fades out), fades OUT on exit going back — so the two
-          backgrounds dissolve into each other and the page never looks
-          like it "reloaded", only its content changes. */}
+      
       <motion.img
         src={back3}
         alt=""
@@ -76,10 +72,6 @@ export function HomeDetail2() {
           </p>
         </motion.div>
 
-        {/* Buy Now removed from here — it's the single persistent
-            BuyNowEntity rendered in App.tsx, positioned to land at
-            roughly this same spot but shared with (and animated from)
-            HomeDetail Stage 3. */}
       </div>
 
       {/* Person image */}
