@@ -1,13 +1,15 @@
-import { motion } from "framer-motion";
+import { motion, type Variants, type Easing } from "framer-motion";
 import back3 from "../assets/back3.png";
 import person from "../assets/person.png";
 
-const fadeUp = {
+const EASE_FADE_UP: Easing = [0.22, 1, 0.36, 1];
+
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: (delay: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.6, delay, ease: EASE_FADE_UP },
   }),
 };
 
