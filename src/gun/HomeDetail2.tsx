@@ -14,7 +14,6 @@ const fadeUp = {
 export function HomeDetail2() {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white font-roboto">
-      
       <motion.img
         src={back3}
         alt=""
@@ -26,13 +25,12 @@ export function HomeDetail2() {
         className="pointer-events-none absolute inset-0 h-full w-full object-cover object-left"
       />
 
-      {/* Left text column */}
       <div
         className="absolute z-10 flex flex-col items-start"
         style={{
           top: "13.9%",
-          left: "72px",
-          width: "717px",
+          left: "clamp(24px, 5vw, 72px)",
+          width: "clamp(280px, 50vw, 717px)",
         }}
       >
         <motion.h1
@@ -71,10 +69,8 @@ export function HomeDetail2() {
             cleaning power directly into your hands.
           </p>
         </motion.div>
-
       </div>
 
-      {/* Person image */}
       <motion.div
         initial={{ opacity: 0, x: 40 }}
         animate={{ opacity: 1, x: 0 }}
