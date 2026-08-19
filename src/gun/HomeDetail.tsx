@@ -113,27 +113,39 @@ const calloutsStage3: Callout[] = [
   },
 ];
 
-const CALLOUT_ENTER_DURATION = 0.5;
+const CALLOUT_ENTER_DURATION = 0.28;
 const CALLOUT_ENTER_EASE: Easing = [0.16, 1, 0.3, 1];
-const CALLOUT_EXIT_DURATION = 0.5;
-const CALLOUT_EXIT_EASE: Easing = [0.42, 0, 1, 1];
+const CALLOUT_EXIT_DURATION = 0.35;
+const CALLOUT_EXIT_EASE: Easing = [0.4, 0, 1, 1];
+const GROUP_EXIT_FACTOR = 0.2;
+const GROUP_EXIT_EASE: Easing = [0.4, 0, 1, 1];
+const TEXT_REVEAL_DELAY_MS = 75;
 
 export const HomeDetail = ({ stage, direction, transition, gunSettled }: HomeDetailProps) => {
   const activeCallouts =
     stage === 1 ? calloutsStage1 : stage === 2 ? calloutsStage2 : calloutsStage3;
 
-  const staggerDelay = (idx: number) => {
-    const seq = direction === 1 ? idx : activeCallouts.length - 1 - idx;
-    return seq * 0.12;
-  };
-
+ const staggerDelay = (idx: number) => {
+  const seq = direction === 1 ? idx : activeCallouts.length - 1 - idx;
+  return seq * 0.055;
+};
   const [ellipsesShown, setEllipsesShown] = useState(false);
+  const [calloutsReady, setCalloutsReady] = useState(false);
 
   useEffect(() => {
     if (gunSettled && !ellipsesShown) {
       setEllipsesShown(true);
     }
   }, [gunSettled, ellipsesShown]);
+
+  useEffect(() => {
+    if (!gunSettled) {
+      setCalloutsReady(false);
+      return;
+    }
+    const t = setTimeout(() => setCalloutsReady(true), TEXT_REVEAL_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [gunSettled]);
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white font-roboto">
@@ -143,8 +155,8 @@ export const HomeDetail = ({ stage, direction, transition, gunSettled }: HomeDet
         aria-hidden="true"
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.9 }}
-        exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.4, 0, 1, 1] } }}
-        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        exit={{ opacity: 0, transition: { duration: 2.0, ease: [0.4, 0, 1, 1] } }}
+        transition={{ duration: 2.75, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
         className="pointer-events-none absolute left-0 top-[-22.2%] h-[126.3%] w-[99.8%] max-w-none object-cover"
       />
 
@@ -158,7 +170,7 @@ export const HomeDetail = ({ stage, direction, transition, gunSettled }: HomeDet
             style={{ top: "70%", left: "-12%", rotate: "25deg" }}
             initial={{ opacity: 0, x: -70, y: 70 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 1.0, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 2.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           />
           <motion.img
             src={ellipse2Image}
@@ -168,12 +180,12 @@ export const HomeDetail = ({ stage, direction, transition, gunSettled }: HomeDet
             style={{ top: "-15%", right: "-5%", left: "auto", rotate: "0deg" }}
             initial={{ opacity: 0, x: 70, y: -70 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 1.0, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 2.5, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
           />
         </>
       )}
 
-      {gunSettled && (
+      {calloutsReady && (
         <AnimatePresence mode="wait">
           <motion.div
             key={stage}
@@ -181,7 +193,7 @@ export const HomeDetail = ({ stage, direction, transition, gunSettled }: HomeDet
             animate={{ opacity: 1 }}
             exit={{
               opacity: 0,
-              transition: { duration: transition.duration, ease: transition.ease },
+              transition: { duration: transition.duration * GROUP_EXIT_FACTOR, ease: GROUP_EXIT_EASE },
             }}
           >
             {activeCallouts.map((c, idx) => (
@@ -219,7 +231,7 @@ export const HomeDetail = ({ stage, direction, transition, gunSettled }: HomeDet
                 }}
                 transition={{
                   duration: CALLOUT_ENTER_DURATION,
-                  delay: staggerDelay(idx) + 0.08,
+                  delay: staggerDelay(idx) + 0.2,
                   ease: CALLOUT_ENTER_EASE,
                 }}
                 className="absolute z-20"

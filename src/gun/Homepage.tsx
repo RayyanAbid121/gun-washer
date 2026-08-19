@@ -5,15 +5,23 @@ import starImage from "../assets/star.png";
 interface HomepageProps {
   curtainOpen: boolean;
   direction: 1 | -1;
+  firstEntry: boolean;
+  visitId: number;
 }
 
 const textExit = {
   opacity: 0,
   y: -70,
-  transition: { duration: 0.4, ease: [0.4, 0, 1, 1] as const },
+  transition: { duration: 1.05, ease: [0.4, 0, 1, 1] as const },
 };
 
-export const Homepage = ({ curtainOpen, direction }: HomepageProps) => {
+const CURTAIN_REVEAL_DELAY = 1.75;
+const RETURN_REVEAL_DELAY = 0.3;
+const STAR_REVEAL_GAP = 0.4;
+
+export const Homepage = ({ curtainOpen, direction, firstEntry, visitId }: HomepageProps) => {
+  const baseRevealDelay = firstEntry ? CURTAIN_REVEAL_DELAY : RETURN_REVEAL_DELAY;
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white font-roboto">
       <motion.img
@@ -22,8 +30,8 @@ export const Homepage = ({ curtainOpen, direction }: HomepageProps) => {
         aria-hidden="true"
         initial={direction === -1 ? { opacity: 0 } : { opacity: 0.45 }}
         animate={{ opacity: 0.45 }}
-        exit={{ opacity: 0, transition: { duration: 0.5, ease: [0.4, 0, 1, 1] } }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        exit={{ opacity: 0, transition: { duration: 1.5, ease: [0.4, 0, 1, 1] } }}
+        transition={{ duration: 2.25, ease: [0.16, 1, 0.3, 1] }}
         className="pointer-events-none absolute -left-[0.6%] -top-[9.4%] h-[123.4%] w-[100.4%] max-w-none object-cover"
       />
 
@@ -32,7 +40,7 @@ export const Homepage = ({ curtainOpen, direction }: HomepageProps) => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={textExit}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 1.5 }}
           className="flex w-full max-w-md shrink-0 items-center rounded-full bg-[#FF7A00] p-1.5"
         >
           {["Home", "Feature", "About Us", "Contact"].map((item, i) => (
@@ -52,8 +60,8 @@ export const Homepage = ({ curtainOpen, direction }: HomepageProps) => {
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ ...textExit, transition: { ...textExit.transition, delay: 0.02 } }}
-          transition={{ duration: 0.5, delay: 0.08 }}
+          exit={{ ...textExit, transition: { ...textExit.transition, delay: 0.06 } }}
+          transition={{ duration: 1.5, delay: 0.2 }}
           className="mt-5 max-w-5xl shrink-0 text-center text-3xl font-bold leading-tight text-balance text-gray-900 lg:text-5xl"
         >
           Tackle Dirt Anywhere.{" "}
@@ -63,8 +71,8 @@ export const Homepage = ({ curtainOpen, direction }: HomepageProps) => {
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ ...textExit, transition: { ...textExit.transition, delay: 0.04 } }}
-          transition={{ duration: 0.5, delay: 0.16 }}
+          exit={{ ...textExit, transition: { ...textExit.transition, delay: 0.12 } }}
+          transition={{ duration: 1.5, delay: 0.4 }}
           className="mt-3 max-w-xl shrink-0 text-center text-base font-normal text-[#05070A] lg:text-2xl"
         >
           The Ultimate Portable Wireless Pressure Washer Gun
@@ -73,10 +81,10 @@ export const Homepage = ({ curtainOpen, direction }: HomepageProps) => {
         <motion.button
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ ...textExit, transition: { ...textExit.transition, delay: 0.06 } }}
+          exit={{ ...textExit, transition: { ...textExit.transition, delay: 0.18 } }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          transition={{ duration: 0.5, delay: 0.24 }}
+          transition={{ duration: 1.5, delay: 0.6 }}
           className="group relative mt-5 flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border-2 border-[#FF7A00] bg-[#FF7A00] font-bold text-white shadow-lg"
           style={{
             width: "clamp(182px, 10vw, 260px)",
@@ -93,13 +101,14 @@ export const Homepage = ({ curtainOpen, direction }: HomepageProps) => {
         </motion.button>
 
         <motion.div
-          exit={{ ...textExit, transition: { ...textExit.transition, delay: 0.08 } }}
+          key={visitId}
+          exit={{ ...textExit, transition: { ...textExit.transition, delay: 0.24 } }}
           className="mt-auto w-full max-w-xs shrink-0 self-start pb-4"
         >
           <motion.p
             initial={{ opacity: 0, x: -600 }}
             animate={curtainOpen ? { opacity: 1, x: 0 } : { opacity: 0, x: -600 }}
-            transition={{ duration: 0.6, delay: curtainOpen ? 0.12 : 0, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 2.0, delay: curtainOpen ? baseRevealDelay : 0, ease: [0.16, 1, 0.3, 1] }}
             className="text-sm font-light leading-snug text-black"
           >
             Experience the freedom of professional-grade cleaning right in
@@ -111,7 +120,7 @@ export const Homepage = ({ curtainOpen, direction }: HomepageProps) => {
           <motion.div
             initial={{ opacity: 0, x: -600 }}
             animate={curtainOpen ? { opacity: 1, x: 0 } : { opacity: 0, x: -600 }}
-            transition={{ duration: 0.6, delay: curtainOpen ? 0.24 : 0, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 2.0, delay: curtainOpen ? baseRevealDelay + STAR_REVEAL_GAP : 0, ease: [0.16, 1, 0.3, 1] }}
             className="mt-3 flex w-[170px] items-center justify-center gap-1 rounded-[5px] border border-black py-2"
           >
             {[...Array(5)].map((_, i) => (

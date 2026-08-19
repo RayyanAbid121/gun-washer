@@ -19,9 +19,9 @@ export const BuyNowEntity = ({ className, revealed, visible }: BuyNowEntityProps
       initial={revealed ? false : hiddenPose}
       animate={revealed ? settledPose : hiddenPose}
       transition={{
-        layout: { type: "spring", stiffness: 170, damping: 24, mass: 1.4 },
-        opacity: { duration: 0.45, ease: [0.4, 0, 0.2, 1] },
-        default: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+        layout: { type: "spring", stiffness: 30, damping: 22, mass: 3 },
+        opacity: { duration: 1.25, ease: [0.4, 0, 0.2, 1] },
+        default: { duration: 2.25, ease: [0.16, 1, 0.3, 1] },
       }}
       style={{ transformOrigin: "center center", pointerEvents: visible ? "auto" : "none" }}
     >

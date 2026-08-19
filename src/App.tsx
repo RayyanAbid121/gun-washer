@@ -28,17 +28,17 @@ interface TransitionSpec {
 }
 
 const PAGE_TRANSITIONS: Record<string, TransitionSpec> = {
-  toStage1: { duration: 1.2, ease: EASE_HOME as unknown as Easing },
-  toHomepage: { duration: 1.5, ease: reverseBezier(EASE_HOME) as unknown as Easing },
-  toDetail2: { duration: 1.05, ease: EASE_DETAIL2_FORWARD as unknown as Easing },
-  toStage3Back: { duration: 1.1, ease: EASE_DETAIL2_BACK as unknown as Easing },
+  toStage1: { duration: 3.4, ease: EASE_HOME as unknown as Easing },
+  toHomepage: { duration: 3.8, ease: reverseBezier(EASE_HOME) as unknown as Easing },
+  toDetail2: { duration: 3.6, ease: EASE_DETAIL2_FORWARD as unknown as Easing },
+  toStage3Back: { duration: 3.1, ease: EASE_DETAIL2_BACK as unknown as Easing },
 };
 
 const STAGE_TRANSITIONS: Record<string, TransitionSpec> = {
-  s1_to_s2: { duration: 1.2, ease: EASE_S1_S2 as unknown as Easing },
-  s2_to_s1: { duration: 1.2, ease: reverseBezier(EASE_S1_S2) as unknown as Easing },
-  s2_to_s3: { duration: 1.2, ease: EASE_S2_S3 as unknown as Easing },
-  s3_to_s2: { duration: 1.2, ease: reverseBezier(EASE_S2_S3) as unknown as Easing },
+  s1_to_s2: { duration: 0.38, ease: EASE_S1_S2 as unknown as Easing },
+  s2_to_s1: { duration: 0.38, ease: reverseBezier(EASE_S1_S2) as unknown as Easing },
+  s2_to_s3: { duration: 0.38, ease: EASE_S2_S3 as unknown as Easing },
+  s3_to_s2: { duration: 0.38, ease: reverseBezier(EASE_S2_S3) as unknown as Easing },
 };
 
 const GUN_POSE_HOME = {
@@ -82,16 +82,31 @@ function getBuyNowVisible(index: number, stage: 1 | 2 | 3) {
   return (index === 1 && stage === 3) || index === 2;
 }
 
-const CURTAIN_LOCK_MS = 900 + 150;
-const CURTAIN_CLOSE_MS = 900;
-const CURTAIN_REOPEN_PAUSE_MS = 400;
-const CURTAIN_INITIAL_DELAY_MS = 400;
+const CURTAIN_DURATION_S = 1.6;
+const CURTAIN_CLOSE_MS = CURTAIN_DURATION_S * 1000;
+const CURTAIN_LOCK_MS = CURTAIN_CLOSE_MS + 150;
+const CURTAIN_REOPEN_PAUSE_MS = 700;
+const CURTAIN_INITIAL_DELAY_MS = 700;
+const CURTAIN_REVEAL_BUFFER_MS = 150;
 const WHEEL_COOLDOWN_MS = 250;
+const PAGE_EXIT_FACTOR = 0.42;
 
 const fadeVariants = {
-  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 48 : -48 }),
-  center: { opacity: 1, x: 0 },
-  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -48 : 48 }),
+  enter: (custom: { dir: number; enter: TransitionSpec }) => ({
+    opacity: 0,
+    x: custom.dir > 0 ? 48 : -48,
+    transition: { duration: custom.enter.duration, ease: custom.enter.ease },
+  }),
+  center: (custom: { enter: TransitionSpec }) => ({
+    opacity: 1,
+    x: 0,
+    transition: { duration: custom.enter.duration, ease: custom.enter.ease },
+  }),
+  exit: (custom: { dir: number; exit: TransitionSpec }) => ({
+    opacity: 0,
+    x: custom.dir > 0 ? -48 : 48,
+    transition: { duration: custom.exit.duration, ease: custom.exit.ease },
+  }),
 };
 
 function App() {
@@ -102,6 +117,7 @@ function App() {
 
   const [hasEnteredOnce, setHasEnteredOnce] = useState(false);
   const [gunSettled, setGunSettled] = useState(false);
+  const [homeVisitId, setHomeVisitId] = useState(0);
 
   const [pageTransition, setPageTransition] = useState<TransitionSpec>(PAGE_TRANSITIONS.toStage1);
   const [stageTransition, setStageTransition] = useState<TransitionSpec>(STAGE_TRANSITIONS.s1_to_s2);
@@ -110,6 +126,10 @@ function App() {
   const touchStartY = useRef<number | null>(null);
   const mouseStartY = useRef<number | null>(null);
   const isDragging = useRef(false);
+
+  useEffect(() => {
+    if (index === 0) setHomeVisitId((v) => v + 1);
+  }, [index]);
 
   useEffect(() => {
     if (index !== 0 || !curtainClosed) return;
@@ -125,7 +145,9 @@ function App() {
   }, [index, curtainClosed, hasEnteredOnce]);
 
   useEffect(() => {
-    if (!curtainClosed) setHasEnteredOnce(true);
+    if (curtainClosed) return;
+    const t = setTimeout(() => setHasEnteredOnce(true), CURTAIN_CLOSE_MS + CURTAIN_REVEAL_BUFFER_MS);
+    return () => clearTimeout(t);
   }, [curtainClosed]);
 
   const lockFor = (spec: TransitionSpec) => spec.duration * 1000 + 150;
@@ -302,22 +324,34 @@ function App() {
   const gunPose = getGunPose(index, detailStage);
   const gunVisible = index !== 2;
 
+  const pageExitTransition: TransitionSpec = {
+    duration: pageTransition.duration * PAGE_EXIT_FACTOR,
+    ease: pageTransition.ease,
+  };
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-white select-none">
       <div className="relative mx-auto h-full w-full max-w-[2560px]">
-        <AnimatePresence custom={direction} initial={false}>
+        <AnimatePresence
+          custom={{ dir: direction, enter: pageTransition, exit: pageExitTransition }}
+          initial={false}
+        >
           <motion.div
             key={index}
-            custom={direction}
+            custom={{ dir: direction, enter: pageTransition, exit: pageExitTransition }}
             variants={fadeVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: pageTransition.duration, ease: pageTransition.ease }}
             className="absolute inset-0"
           >
             {index === 0 ? (
-              <Homepage curtainOpen={!curtainClosed} direction={direction} />
+              <Homepage
+                curtainOpen={!curtainClosed}
+                direction={direction}
+                firstEntry={!hasEnteredOnce}
+                visitId={homeVisitId}
+              />
             ) : index === 1 ? (
               <HomeDetail
                 stage={detailStage}
@@ -350,7 +384,7 @@ function App() {
         </div>
       </div>
 
-      <Orange closed={curtainClosed} />
+      <Orange closed={curtainClosed} duration={CURTAIN_DURATION_S} />
     </div>
   );
 }

@@ -9,7 +9,7 @@ const fadeUp: Variants = {
   show: (delay: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay, ease: EASE_FADE_UP },
+    transition: { duration: 1.75, delay, ease: EASE_FADE_UP },
   }),
 };
 
@@ -22,8 +22,8 @@ export function HomeDetail2() {
         aria-hidden="true"
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.9 }}
-        exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.4, 0, 1, 1] } }}
-        transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        exit={{ opacity: 0, transition: { duration: 1.6, ease: [0.4, 0, 1, 1] } }}
+        transition={{ duration: 2.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="pointer-events-none absolute inset-0 h-full w-full object-cover object-left"
       />
 
@@ -39,7 +39,7 @@ export function HomeDetail2() {
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          custom={0.15}
+          custom={0.4}
           className="font-bold text-[#FF7A00] leading-[1.08]"
           style={{ fontSize: "clamp(28px, 4.2vw, 60px)" }}
         >
@@ -50,7 +50,7 @@ export function HomeDetail2() {
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          custom={0.3}
+          custom={0.8}
           style={{ marginTop: "clamp(24px, 4vh, 56px)", maxWidth: "94%" }}
         >
           <h2
@@ -76,7 +76,7 @@ export function HomeDetail2() {
       <motion.div
         initial={{ opacity: 0, x: 40 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 2.25, ease: "easeOut" }}
         className="pointer-events-none absolute bottom-0 right-[6%] h-[96%]"
       >
         <img
